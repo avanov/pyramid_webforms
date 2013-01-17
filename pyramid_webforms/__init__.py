@@ -318,7 +318,7 @@ class Form(object):
                     multipart=self._params.get('multipart'),
                     target=self._params.get('target'),
                     style=self._params.get('style'),
-                    **self._params.get('html5_args', {})
+                    **self._params.get('html5_attrs', {})
                 ),
                 ''.join(hidden_fields)
             ))
@@ -495,7 +495,7 @@ class InputField(object):
                 var=kwargs.get('class_', self.type),
                 const=(with_tip and ' with-tip' or '')
             )
-            kwargs.update(self.kw.get('html5_args', {}))
+            kwargs.update(self.kw.get('html5_attrs', {}))
             input = tags.__dict__[self.tag_type](**kwargs)
 
         extra_html = literal(kw.pop('extra_html', ''))
