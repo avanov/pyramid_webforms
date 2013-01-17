@@ -3,7 +3,7 @@ Simple declarative web forms using FormEncode and WebHelpers
 
 Status: **Early Development, Unstable, Unpublished**.
 
-Python Version: **2.7** (please contribute to FormEncode project in order to make it 3.x compatible).
+Python Version: **2.7** (please contribute to `FormEncode Project`_ in order to make it 3.x compatible).
 
 Installation
 --------------
@@ -13,8 +13,8 @@ Installation
    pip install pyramid_webforms
 
 
-Examples
---------------
+Example
+-------------
 
 Consider the following pyramid project structure:
 
@@ -32,7 +32,60 @@ Consider the following pyramid project structure:
             signin.mako
         __init__.py
 
-Let's define a sign-in form
+Let's define a sign-in form, its fields, and validators.
+
+.. code-block:: python
+
+    # my_pyramid_app/modules/signin/forms.py
+    from pyramid_webforms import Form
+    from my_pyramid_app.i18n import _
+    from . import validators
+
+
+    login_or_email = {
+        'type': 'text',
+        'title': _('Login or Email'),
+        'tip': _('Please enter your login or email that was used during your registration.'),
+        'size': 30,
+        'maxlength': 50,
+        'validator': validators.UserLoginOrEmail
+    }
+
+    password = {
+        'type': 'password',
+        'title': _('Password'),
+        'tip': _('A password can contain any character of any alphabet (minimum is 1, maximum is 64 characters). '
+                 'For reliability we recommend using non-trivial and long passwords. Note that the case of '
+                 'the letters matters.'),
+        'size': 30,
+        'maxlength': 64,
+        'validator': validators.UserPassword,
+        'value': '',
+    }
+
+    remember_me = {
+        'type': 'checkbox',
+        'title': _('Remember me'),
+        'tip': _('Set this checkbox if you want your current browser to keep '
+                 'your session for further visits.'),
+        'selected': False,
+        'validator': validators.RememberUserSession
+    }
+
+    class SignInForm(Form):
+        # form attributes and metadata
+        _id_ = 'signin-form'
+        _submit_text_ = _('Sign in')
+        _alternate_url_ = {'name': 'support.account_access'}
+        _alternate_text_ = _("I cannot access my account")
+        _fieldsets_ = [
+            [['login_email', 'password', 'remember_me']]
+        ]
+        # form fields
+        login_email = login_or_email
+        password = password
+        remember_me = remember_me
+
 
 .. code-block:: python
 
@@ -76,57 +129,7 @@ Let's define a sign-in form
         max = 64
 
 
-.. code-block:: python
-
-    # my_pyramid_app/modules/signin/forms.py
-    from pyramid_webforms import Form
-    from my_pyramid_app.i18n import _
-    from . import validators
-
-
-    login_or_email = {
-        'type': 'text',
-        'title': _('Login or Email'),
-        'tip': _('Please enter your login or email that was used during your registration.'),
-        'size': 30,
-        'maxlength': 50,
-        'validator': validators.UserLoginOrEmail
-    }
-
-    password = {
-        'type': 'password',
-        'title': _('Password'),
-        'tip': _('A password can contain any character of any alphabet (minimum is 1, maximum is 64 characters). '
-                 'For reliability we recommend using non-trivial and long passwords. Note that the case of '
-                 'the letters matters.'),
-        'size': 30,
-        'maxlength': 64,
-        'validator': validators.UserPassword,
-        'value': '',
-    }
-
-    remember_me = {
-        'type': 'checkbox',
-        'title': _('Remember me'),
-        'tip': _('Set this checkbox if you want your current browser to keep '
-                 'your session for further visits.'),
-        'selected': False,
-        'validator': validators.RememberUserSession
-    }
-
-    class SignInForm(Form):
-        _id_ = 'signin-form'
-        _submit_text_ = _('Sign in')
-        _alternate_url_ = {'name': 'support.account_access'}
-        _alternate_text_ = _("I cannot access my account")
-        _fieldsets_ = [
-            [['login_email', 'password', 'remember_me']]
-        ]
-
-        login_email = login_or_email
-        password = password
-        remember_me = remember_me
-
+Now we can use our form in pyramid view callables.
 
 .. code-block:: python
 
@@ -165,7 +168,7 @@ Here are the key conceptual points:
 - form fields are defined with plain dictionaries;
 - the fields can be reused by any other module;
 - each field record contains an assigned FormEncode-based validator;
-- a form is defined with simple declarative interface.
+- a form is defined with the simple declarative interface.
 
 
 See also
