@@ -1,4 +1,4 @@
-Simple declarative web forms using FormEncode
+Simple declarative web forms using FormEncode and WebHelpers
 ==============================================
 
 Status: **Early Development, Unstable, Unpublished**.
@@ -172,6 +172,8 @@ See also
 ============
 
 - `FormEncode Project`_
+- `WebHelpers Project`_
 
 
 .. _FormEncode Project: https://github.com/formencode/formencode
+.. _WebHelpers Project: http://sluggo.scrapping.cc/python/WebHelpers/index.html
