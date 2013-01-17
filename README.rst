@@ -25,6 +25,7 @@ Consider the following pyramid project structure:
                 __init__.py
                 forms.py
                 validators.py
+                views.py
             __init__.py
         templates/
             signin.mako
