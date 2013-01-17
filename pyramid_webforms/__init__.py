@@ -1,22 +1,26 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import six
+import re
 import copy
 import inspect
+
+import six
 import formencode
-from pyramid.httpexceptions import exception_response
+from webhelpers.html import literal, tags
 from pyramid.renderers import render
-from pyramid.i18n import TranslationString
-from webhelpers.html import literal
-from webhelpers.html.tags import form as insecure_form
-
-from pyramid.i18n import TranslationStringFactory
-
-from . import tags
+from pyramid.httpexceptions import exception_response
+from pyramid.mako_templating import MakoRendererFactoryHelper
+from pyramid.i18n import TranslationString, TranslationStringFactory
 
 
 
 _ = original_gettext = TranslationStringFactory('pyramid_webforms')
+forms_renderer_factory = MakoRendererFactoryHelper('p_wf_mako.')
+
+
+def includeme(config):
+    """Pyramid configuration entry point"""
+    config.add_renderer('.p_wf_mako', forms_renderer_factory)
 
 
 class FormencodeState(object):
@@ -59,11 +63,9 @@ CSRF_TOKEN_FIELD = {
 }
 
 
-csrf_detected_message = (
-    "Cross-site request forgery detected, request denied. See "
-    "http://en.wikipedia.org/wiki/Cross-site_request_forgery for more "
-    "information."
-    )
+csrf_detected_message = ("Cross-site request forgery detected, request denied. See "
+                         "http://en.wikipedia.org/wiki/Cross-site_request_forgery for more "
+                         "information.")
 
 
 def authenticated_form(request):
@@ -77,7 +79,6 @@ def authenticate_form(func):
         if not request.POST:
             return func(context, request)
         if authenticated_form(request):
-            #del request.POST[CSRF_TOKEN_KEY]
             return func(context, request)
         raise exception_response(403, detail=csrf_detected_message)
     return inner
@@ -105,9 +106,10 @@ def _secure_form(action, method="POST", multipart=False, **kwargs):
     #token = request.session.get_csrf_token()
     #token = hidden(CSRF_TOKEN_KEY, token)
     #token = HTML.div(token, style="display:none;")
-    token = ''
-    form = insecure_form(action, method, multipart, **kwargs)
-    return literal("{}\n{}".format(form, token))
+    #token = ''
+    #form = tags.form(action, method, multipart, **kwargs)
+    #return literal("{}\n{}".format(form, token))
+    return literal(tags.form(action, method, multipart, **kwargs))
 
 
 class FieldError(Exception):
@@ -120,6 +122,8 @@ class DeclarativeMeta(type):
         cls.__classinit__.__func__(cls, new_attrs)
         return cls
 
+FORM_ATTRIBUTES_RE = re.compile("_[a-z0-9][a-z0-9_]*[a-z0-9]_", re.IGNORECASE)
+ACTION_CALL_SAME_VIEW = ''
 
 class Form(object):
     __metaclass__ = DeclarativeMeta
@@ -127,15 +131,13 @@ class Form(object):
     _hidden = {}
     _params = {
         'fieldsets': [],
-        'filter': []
+        'filter': [],
+        'validation_schema': None,
+        'method': 'post'
     }
-    _validation_schema = None
     Invalid = formencode.Invalid
-    method_ = 'post'
-    fieldsets_ = []
 
     def __classinit__(self, new_attrs):
-        self.fieldsets_ = copy.deepcopy(self.fieldsets_)
         self._fields = copy.copy(self._fields)
         self._hidden = copy.copy(self._hidden)
         # We should create deepcopy here because we have nested
@@ -143,15 +145,16 @@ class Form(object):
         self._params = copy.deepcopy(self._params)
 
         for name, val in new_attrs.items():
-            if (name.startswith('_') or inspect.ismethod(val) or
+            if (name.startswith('__') or inspect.ismethod(val) or
                 isinstance(val, classmethod) or val is formencode.Invalid):
                 continue
-            elif name.endswith('_'):
-                if name == 'fieldsets_':
-                    self.fieldsets_ = val
+
+            elif FORM_ATTRIBUTES_RE.match(name):
+                if name == '_fieldsets_':
                     self._params['fieldsets'] = self._compose_fieldsets(val)
                 else:
-                    self._params[name[:-1]] = val
+                    self._params[name[1:-1]] = val
+
             else:
                 if val.get('type') == 'hidden':
                     self._hidden[name] = val
@@ -171,9 +174,9 @@ class Form(object):
                     if field != item:
                         new_fields_list.append(field)
                 fieldset['fields'] = new_fields_list
-            # Clear cls._params['filter'] in order to properly handle
-        # inheritance of filtered forms (otherwise the
-        # cls._fields.pop(item) will raise KeyError for inherited forms).
+        # Clear cls._params['filter'] in order to properly handle
+        # inheritance of filtered forms (otherwise
+        # cls._fields.pop(item) will raise KeyError on inherited forms).
         self._params['filter'] = []
 
         # Add CSRF token field to all POST forms
@@ -185,7 +188,7 @@ class Form(object):
                 del self._hidden[CSRF_TOKEN_KEY]
 
         # Generate validation schema
-        self._validation_schema = self._compose_validator()
+        self._params['validation_schema'] = self._compose_validator()
 
 
     @classmethod
@@ -239,7 +242,7 @@ class Form(object):
         if state is None:
             state = FormencodeState(request=request)
 
-        data = cls._validation_schema.to_python(data, state)
+        data = cls._params['validation_schema'].to_python(data, state)
         return data
 
 
@@ -257,16 +260,15 @@ class Form(object):
             self.data[CSRF_TOKEN_KEY] = {'value': request.session.get_csrf_token()}
             # Prepare buttons
         if self._cached_parts.get('buttons') is None:
-            alternate = self._params.get('alternate', False)
-            if alternate:
-                alternate_url = self._params.get('alternate_url', '')
+            alternate_url = self._params.get('alternate_url', '')
+            if alternate_url:
                 if isinstance(alternate_url, dict):
                     url_kw = copy.copy(alternate_url)
                     name = url_kw.pop('name', None)
                     alternate_url = request.route_path(name, **url_kw)
 
                 submit_btn = render(
-                    'pyramid_webforms:templates/submit_alternate.mako',
+                    'pyramid_webforms:templates/submit_alternate.p_wf_mako',
                     {
                         'submit_text': self._params.get('submit_text', _('Submit')),
                         'or_text': self._params.get('or_text', _('or')), 'alternate_url': alternate_url,
@@ -276,7 +278,7 @@ class Form(object):
                 )
             else:
                 submit_btn = render(
-                    'pyramid_webforms:templates/submit.mako',
+                    'pyramid_webforms:templates/submit.p_wf_mako',
                     {'submit_text': self._params.get('submit_text', _('Submit'))},
                     request
                 )
@@ -292,7 +294,7 @@ class Form(object):
         # Prepare form attributes
         if self._cached_parts.get('attributes') is None:
             # try to get action url from instance data
-            action = self.data.get('action_')
+            action = self.data.get('_action_')
             if action is None:
                 action_params = self._params.get('action', {})
                 if action_params:
@@ -300,7 +302,7 @@ class Form(object):
                     name = url_kw.pop('name', None)
                     action = request.route_path(name, **url_kw)
                 else:
-                    action = ''
+                    action = ACTION_CALL_SAME_VIEW
 
             hidden_fields = []
             for name, data in self._hidden.items():
@@ -337,7 +339,7 @@ class Form(object):
             # part == 'all'
             return literal(
                 render(
-                    'pyramid_webforms:templates/form.mako',
+                    'pyramid_webforms:templates/form.p_wf_mako',
                     {
                         'attributes': self._cached_parts['attributes'],
                         'fields': self._cached_parts['fields'],
@@ -348,15 +350,13 @@ class Form(object):
                 )
             )
 
-
+    @classmethod
     def _generate_fields(self, request, fields_list, override_data):
         html = []
         for name in fields_list['fields']:
             field = self._fields[name]
 
-            values = {
-                'with_tip':self._params.get('with_tip', True)
-            }
+            values = {'with_tip':self._params.get('with_tip', True)}
             values.update(field)
             data = override_data.get(name, {})
             values.update(data)
@@ -372,7 +372,7 @@ class Form(object):
         caption = fields_list.get('name', '')
         return literal(
             render(
-                'pyramid_webforms:templates/fieldset.mako',
+                'pyramid_webforms:templates/fieldset.p_wf_mako',
                 {
                     'caption': caption,
                     'fields': literal(''.join(html))
@@ -503,14 +503,14 @@ class InputField(object):
         input_only = kw.pop('input_only', False)
 
         if input_only:
-            # input is already literal type
+            # input is already a literal type
             return input
 
         error = request.tmpl_context.form_errors.get(name, '')
         if error:
             error = field_error(request, error)
         return literal(
-            render('pyramid_webforms:templates/field.mako',
+            render('pyramid_webforms:templates/field.p_wf_mako',
                 {
                     'name': name,
                     'title': title,
@@ -531,7 +531,7 @@ class InputField(object):
         if not escape_html:
             tip = literal(tip)
         return literal(
-            render('pyramid_webforms:templates/tooltip.mako',
+            render('pyramid_webforms:templates/tooltip.p_wf_mako',
                 {'tip': tip},
                 request
             )
@@ -541,7 +541,7 @@ class InputField(object):
 def form_errors(request):
     if request.tmpl_context.form_errors:
         return literal(
-            render('pyramid_webforms:templates/form_error.mako',
+            render('pyramid_webforms:templates/form_error.p_wf_mako',
                 {'error_message': _("Please correct your input parameters.")},
                 request
             )
@@ -551,7 +551,7 @@ def form_errors(request):
 
 def field_error(request, error):
     return literal(
-        render('pyramid_webforms:templates/field_error.mako',
+        render('pyramid_webforms:templates/field_error.p_wf_mako',
             {'label': _('Error'), 'text': error},
             request
         )
