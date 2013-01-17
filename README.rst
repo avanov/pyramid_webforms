@@ -3,7 +3,7 @@ Simple declarative web forms using FormEncode and WebHelpers
 
 Status: **Early Development, Unstable, Unpublished**.
 
-Python Version: **2.7**
+Python Version: **2.7** (please contribute to FormEncode project in order to make it 3.x compatible).
 
 Installation
 --------------
