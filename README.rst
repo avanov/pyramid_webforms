@@ -135,7 +135,7 @@ Now we can use our form in pyramid view callables.
 
     # my_pyramid_app/modules/signin/views.py
     from pyramid.view import view_config
-    from . import forms
+    from .forms import SignInForm
 
 
     class SignInView(object):
