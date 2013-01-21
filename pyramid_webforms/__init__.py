@@ -10,7 +10,7 @@ from webhelpers.html import literal, tags
 from pyramid.renderers import render
 from pyramid.httpexceptions import exception_response
 from pyramid.mako_templating import MakoRendererFactoryHelper
-from pyramid.i18n import TranslationString, TranslationStringFactory
+from pyramid.i18n import get_localizer, TranslationString, TranslationStringFactory
 
 
 
@@ -52,8 +52,8 @@ class CSRFTokenValidator(formencode.validators.UnicodeString):
         request = state.request
         token = request.session.get_csrf_token()
         if token != value:
-            _ = request.translate
-            raise formencode.Invalid(_('Invalid CSRF token.'), value, state)
+            localizer = get_localizer(request)
+            raise formencode.Invalid(localizer.translate(_('Invalid CSRF token.')), value, state)
 
 
 CSRF_TOKEN_KEY = "_at"
@@ -255,7 +255,7 @@ class Form(object):
 
 
     def __call__(self, request, part='all'):
-        _ = request.translate
+        localizer = get_localizer(request)
         # Explicitly add CSRF token value to data dict if form is POST
         if self._params.get('method', 'post') == 'post':
             self.data[CSRF_TOKEN_KEY] = {'value': request.session.get_csrf_token()}
@@ -275,8 +275,9 @@ class Form(object):
                 submit_btn = render(
                     template_path,
                     {
-                        'submit_text': self._params.get('submit_text', _('Submit')),
-                        'or_text': self._params.get('or_text', _('or')), 'alternate_url': alternate_url,
+                        'submit_text': self._params.get('submit_text', localizer.translate(_('Submit'))),
+                        'or_text': self._params.get('or_text', localizer.translate(_('or'))),
+                        'alternate_url': alternate_url,
                         'alternate_text': self._params.get('alternate_text', '')
                     },
                     request
@@ -288,7 +289,7 @@ class Form(object):
                 )
                 submit_btn = render(
                     template_path,
-                    {'submit_text': self._params.get('submit_text', _('Submit'))},
+                    {'submit_text': self._params.get('submit_text', localizer.translate(_('Submit')))},
                     request
                 )
             self._cached_parts['buttons'] = literal(submit_btn)
@@ -569,9 +570,10 @@ def form_errors(request):
             'pyramid_webforms.form_error_tpl',
             'pyramid_webforms:templates/form_error.p_wf_mako'
         )
+        localizer = get_localizer(request)
         return literal(
             render(template_path,
-                {'error_message': _("Please correct your input parameters.")},
+                {'error_message': localizer.translate(_("Please correct your input parameters."))},
                 request
             )
         )
@@ -583,9 +585,10 @@ def field_error(request, error):
         'pyramid_webforms.field_error_tpl',
         'pyramid_webforms:templates/field_error.p_wf_mako'
     )
+    localizer= get_localizer(request)
     return literal(
         render(template_path,
-            {'label': _('Error'), 'text': error},
+            {'label': localizer.translate(_('Error')), 'text': error},
             request
         )
     )
