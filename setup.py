@@ -38,7 +38,7 @@ setup(
     author_email="maxim.avanov@gmail.com",
     maintainer="Maxim Avanov",
     maintainer_email="maxim.avanov@gmail.com",
-    description="Simple declarative web forms using FormEncode",
+    description="Simple declarative web forms using FormEncode and WebHelpers",
     long_description=readme,
     license="MIT",
     url="https://github.com/2nd/pyramid_webforms",

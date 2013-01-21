@@ -117,8 +117,10 @@ class DeclarativeMeta(type):
         cls.__classinit__.__func__(cls, new_attrs)
         return cls
 
+
 FORM_ATTRIBUTES_RE = re.compile("_[a-z0-9][a-z0-9_]*[a-z0-9]_", re.IGNORECASE)
 ACTION_CALL_SAME_VIEW = ''
+
 
 class Form(object):
     __metaclass__ = DeclarativeMeta
