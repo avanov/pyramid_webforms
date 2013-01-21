@@ -18,12 +18,17 @@ setup(
         'pyramid>=1.4',
         'webhelpers>=1.3',
         'six',
+        'Babel',
+        'lingua',
     ],
+    message_extractors={'.': [
+        ('**.py', 'lingua_python', None),
+    ]},
     setup_requires=['nose>=1.1.2'],
     tests_require=['coverage'],
     package_data={
         # If any package contains listed files, include them
-        '':['*.txt', '*.rst', '*mako']
+        '':['*.txt', '*.rst', '*mako', '*.mo']
     },
     include_package_data=True,
 

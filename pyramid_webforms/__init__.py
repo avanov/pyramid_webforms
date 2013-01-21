@@ -21,6 +21,7 @@ forms_renderer_factory = MakoRendererFactoryHelper('p_wf_mako.')
 def includeme(config):
     """Pyramid configuration entry point"""
     config.add_renderer('.p_wf_mako', forms_renderer_factory)
+    config.add_translation_dirs('pyramid_webforms:locale/')
 
 
 class FormencodeState(object):
