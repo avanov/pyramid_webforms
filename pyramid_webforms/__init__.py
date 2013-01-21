@@ -267,8 +267,12 @@ class Form(object):
                     name = url_kw.pop('name', None)
                     alternate_url = request.route_path(name, **url_kw)
 
+                template_path = request.registry.settings.get(
+                    'pyramid_webforms.submit_alternate_tpl',
+                    'pyramid_webforms:templates/submit_alternate.p_wf_mako'
+                )
                 submit_btn = render(
-                    'pyramid_webforms:templates/submit_alternate.p_wf_mako',
+                    template_path,
                     {
                         'submit_text': self._params.get('submit_text', _('Submit')),
                         'or_text': self._params.get('or_text', _('or')), 'alternate_url': alternate_url,
@@ -277,8 +281,12 @@ class Form(object):
                     request
                 )
             else:
+                template_path = request.registry.settings.get(
+                    'pyramid_webforms.submit_tpl',
+                    'pyramid_webforms:templates/submit.p_wf_mako'
+                )
                 submit_btn = render(
-                    'pyramid_webforms:templates/submit.p_wf_mako',
+                    template_path,
                     {'submit_text': self._params.get('submit_text', _('Submit'))},
                     request
                 )
@@ -337,9 +345,13 @@ class Form(object):
             return self._cached_parts['footer']
         else:
             # part == 'all'
+            template_path = request.registry.settings.get(
+                'pyramid_webforms.form_tpl',
+                'pyramid_webforms:templates/form.p_wf_mako'
+            )
             return literal(
                 render(
-                    'pyramid_webforms:templates/form.p_wf_mako',
+                    template_path,
                     {
                         'attributes': self._cached_parts['attributes'],
                         'fields': self._cached_parts['fields'],
@@ -370,9 +382,13 @@ class Form(object):
             return ''
 
         caption = fields_list.get('name', '')
+        template_path = request.registry.settings.get(
+            'pyramid_webforms.fieldset_tpl',
+            'pyramid_webforms:templates/fieldset.p_wf_mako'
+        )
         return literal(
             render(
-                'pyramid_webforms:templates/fieldset.p_wf_mako',
+                template_path,
                 {
                     'caption': caption,
                     'fields': literal(''.join(html))
@@ -509,8 +525,12 @@ class InputField(object):
         error = request.tmpl_context.form_errors.get(name, '')
         if error:
             error = field_error(request, error)
+        template_path = request.registry.settings.get(
+            'pyramid_webforms.field_tpl',
+            'pyramid_webforms:templates/field.p_wf_mako'
+        )
         return literal(
-            render('pyramid_webforms:templates/field.p_wf_mako',
+            render(template_path,
                 {
                     'name': name,
                     'title': title,
@@ -530,8 +550,12 @@ class InputField(object):
             return ''
         if not escape_html:
             tip = literal(tip)
+        template_path = request.registry.settings.get(
+            'pyramid_webforms.tooltip_tpl',
+            'pyramid_webforms:templates/tooltip.p_wf_mako'
+        )
         return literal(
-            render('pyramid_webforms:templates/tooltip.p_wf_mako',
+            render(template_path,
                 {'tip': tip},
                 request
             )
@@ -540,8 +564,12 @@ class InputField(object):
 
 def form_errors(request):
     if request.tmpl_context.form_errors:
+        template_path = request.registry.settings.get(
+            'pyramid_webforms.form_error_tpl',
+            'pyramid_webforms:templates/form_error.p_wf_mako'
+        )
         return literal(
-            render('pyramid_webforms:templates/form_error.p_wf_mako',
+            render(template_path,
                 {'error_message': _("Please correct your input parameters.")},
                 request
             )
@@ -550,8 +578,12 @@ def form_errors(request):
 
 
 def field_error(request, error):
+    template_path = request.registry.settings.get(
+        'pyramid_webforms.field_error_tpl',
+        'pyramid_webforms:templates/field_error.p_wf_mako'
+    )
     return literal(
-        render('pyramid_webforms:templates/field_error.p_wf_mako',
+        render(template_path,
             {'label': _('Error'), 'text': error},
             request
         )
