@@ -171,6 +171,30 @@ Here are the key conceptual points:
 - a form is defined with the simple declarative interface.
 
 
+Configuration options
+-----------------------
+
++---------------------------------------+------------+----------------------------------------------------------+
+| Key                                   | Type       | Default                                                  |
++=======================================+============+==========================================================+
+| pyramid_webforms.submit_tpl           | str        | pyramid_webforms:templates/submit_alternate.p_wf_mako    |
++---------------------------------------+------------+----------------------------------------------------------+
+| pyramid_webforms.submit_alternate_tpl | str        | pyramid_webforms:templates/submit_alternate.p_wf_mako    |
++---------------------------------------+------------+----------------------------------------------------------+
+| pyramid_webforms.form_tpl             | str        | pyramid_webforms:templates/form.p_wf_mako                |
++---------------------------------------+------------+----------------------------------------------------------+
+| pyramid_webforms.fieldset_tpl         | str        | pyramid_webforms:templates/fieldset.p_wf_mako            |
++---------------------------------------+------------+----------------------------------------------------------+
+| pyramid_webforms.field_tpl            | str        | pyramid_webforms:templates/field.p_wf_mako               |
++---------------------------------------+------------+----------------------------------------------------------+
+| pyramid_webforms.tooltip_tpl          | str        | pyramid_webforms:templates/tooltip.p_wf_mako             |
++---------------------------------------+------------+----------------------------------------------------------+
+| pyramid_webforms.form_error_tpl       | str        | pyramid_webforms:templates/form_error.p_wf_mako          |
++---------------------------------------+------------+----------------------------------------------------------+
+| pyramid_webforms.field_error_tpl      | str        | pyramid_webforms:templates/field_error.p_wf_mako         |
++---------------------------------------+------------+----------------------------------------------------------+
+
+
 See also
 ============
 
