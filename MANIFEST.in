@@ -1,1 +1,3 @@
 include README* LICENSE CHANGES
+recursive-include pyramid_webforms *.mo
+recursive-include pyramid_webforms *mako
