@@ -1,10 +1,10 @@
 <tr>
     <td class="label">
-        <label for="${name}">${title}:</label>
-        ${error_message}
+        <label for="${field_name}">${field_title}:</label>
+        ${field_error_message}
     </td>
     <td>
-        ${input}${tip}
-        <div class="extras">${extras}</div>
+        ${field_input}${field_tip}
+        <div class="extras">${field_extras}</div>
     </td>
 </tr>

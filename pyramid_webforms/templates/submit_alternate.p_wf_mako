@@ -1,5 +1,5 @@
 <fieldset class="submit">
-    <input type="submit" name="accept" value="${submit_text}" />
-    <span style="margin:0 5px">${or_text}</span>
-    <a class="alternate-action" href="${alternate_url}">${alternate_text}</a>
+    <input type="submit" name="accept" value="${form_submit_text}" />
+    <span style="margin:0 5px">${form_or_text}</span>
+    <a class="alternate-action" href="${form_alternate_url}">${form_alternate_text}</a>
 </fieldset>

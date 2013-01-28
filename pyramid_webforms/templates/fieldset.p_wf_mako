@@ -1,10 +1,10 @@
-%if caption:
+%if fieldset_title:
     <fieldset class="named">
         <div class="legend">
-            <div>${caption}</div>
-            <table>${fields}</table>
+            <div>${fieldset_title}</div>
+            <table>${fieldset_fields}</table>
         </div>
     </fieldset>
 %else:
-    <fieldset class="nameless"><table>${fields}</table></fieldset>
+    <fieldset class="nameless"><table>${fieldset_fields}</table></fieldset>
 %endif

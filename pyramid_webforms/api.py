@@ -271,10 +271,10 @@ class Form(object):
                 submit_btn = render(
                     template_path,
                     {
-                        'submit_text': self._params.get('submit_text', localizer.translate(_('Submit'))),
-                        'or_text': self._params.get('or_text', localizer.translate(_('or'))),
-                        'alternate_url': alternate_url,
-                        'alternate_text': self._params.get('alternate_text', '')
+                        'form_submit_text': self._params.get('submit_text', localizer.translate(_('Submit'))),
+                        'form_or_text': self._params.get('or_text', localizer.translate(_('or'))),
+                        'form_alternate_url': alternate_url,
+                        'form_alternate_text': self._params.get('alternate_text', '')
                     },
                     request
                 )
@@ -285,7 +285,7 @@ class Form(object):
                 )
                 submit_btn = render(
                     template_path,
-                    {'submit_text': self._params.get('submit_text', localizer.translate(_('Submit')))},
+                    {'form_submit_text': self._params.get('submit_text', localizer.translate(_('Submit')))},
                     request
                 )
             self._cached_parts['buttons'] = literal(submit_btn)
@@ -351,10 +351,10 @@ class Form(object):
                 render(
                     template_path,
                     {
-                        'attributes': self._cached_parts['attributes'],
-                        'fields': self._cached_parts['fields'],
-                        'buttons': self._cached_parts['buttons'],
-                        'footer': self._cached_parts['footer']
+                        'form_attributes': self._cached_parts['attributes'],
+                        'form_fields': self._cached_parts['fields'],
+                        'form_buttons': self._cached_parts['buttons'],
+                        'form_footer': self._cached_parts['footer']
                     },
                     request
                 )
@@ -379,7 +379,7 @@ class Form(object):
         if not html:
             return ''
 
-        caption = fields_list.get('name', '')
+        title = fields_list.get('name', '')
         template_path = request.registry.settings.get(
             'pyramid_webforms.fieldset_tpl',
             'pyramid_webforms:templates/fieldset.p_wf_mako'
@@ -388,8 +388,8 @@ class Form(object):
             render(
                 template_path,
                 {
-                    'caption': caption,
-                    'fields': literal(''.join(html))
+                    'fieldset_title': title,
+                    'fieldset_fields': literal(''.join(html))
                 },
                 request
             )
@@ -530,12 +530,12 @@ class InputField(object):
         return literal(
             render(template_path,
                 {
-                    'name': name,
-                    'title': title,
-                    'error_message': error,
-                    'input': input,
-                    'tip': self.tooltip(request, tip, tip_escape),
-                    'extras': extra_html
+                    'field_name': name,
+                    'field_title': title,
+                    'field_error_message': error,
+                    'field_input': input,
+                    'field_tip': self.tooltip(request, tip, tip_escape),
+                    'field_extras': extra_html
                 },
                 request
             )
@@ -554,7 +554,7 @@ class InputField(object):
         )
         return literal(
             render(template_path,
-                {'tip': tip},
+                {'tooltip_tip': tip},
                 request
             )
         )
@@ -569,7 +569,7 @@ def form_errors(request):
         localizer = get_localizer(request)
         return literal(
             render(template_path,
-                {'error_message': localizer.translate(_("Please correct your input parameters."))},
+                {'form_error_message': localizer.translate(_("Please correct your input parameters."))},
                 request
             )
         )
@@ -584,7 +584,8 @@ def field_error(request, error):
     localizer= get_localizer(request)
     return literal(
         render(template_path,
-            {'label': localizer.translate(_('Error')), 'text': error},
+            {'field_error_label': localizer.translate(_('Error')),
+             'field_error_text': error},
             request
         )
     )

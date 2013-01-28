@@ -1,1 +1,1 @@
-<div class="tooltip">${tip}</div>
+<div class="tooltip">${tooltip_tip}</div>
