@@ -11,7 +11,7 @@ readme = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 
 setup(
     name='pyramid_webforms',
-    version='0.0.1',
+    version='0.0.2',
     packages=find_packages(exclude=['tests']),
     install_requires=[
         'FormEncode>=1.2.6',
@@ -41,8 +41,8 @@ setup(
     description="Simple declarative web forms using FormEncode and WebHelpers",
     long_description=readme,
     license="MIT",
-    url="https://github.com/2nd/pyramid_webforms",
-    download_url="https://github.com/2nd/pyramid_webforms",
+    url="https://github.com/avanov/pyramid_webforms",
+    download_url="https://github.com/avanov/pyramid_webforms",
     keywords="pyramid formencode forms templates validation",
     # See the full list on http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
